@@ -85,7 +85,20 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       // Set with all anchors tracked in a previous frame.
       let all_previous_anchors = new Set();
 
-      function initXR() {
+
+
+
+      //async
+      async function initXR() {
+
+        // setup the image target
+        const img = document.getElementById('img');
+        const imgBitmap = await createImageBitmap(img);
+        console.log(imgBitmap);
+
+
+
+
         xrButton = new WebXRButton({
           onRequestSession: onRequestSession,
           onEndSession: onEndSession,
@@ -93,6 +106,11 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
           textXRNotFoundTitle: isARAvailable ? "AR NOT FOUND" : "VR NOT FOUND",
           textExitXRTitle: isARAvailable ? "EXIT  AR" : "EXIT  VR",
         });
+
+
+
+
+
         document.querySelector('header').appendChild(xrButton.domElement);
 
         if (navigator.xr) {
@@ -118,7 +136,21 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       function onRequestSession() {
         // Requests an 'immersive-ar' or 'immersive-vr' session, depending on which is supported,
         // and requests the 'anchors' module as a required feature.
-        return navigator.xr.requestSession(xrSessionString, {requiredFeatures: ['anchors']})
+
+
+
+
+        return navigator.xr.requestSession(xrSessionString, {requiredFeatures: ['image-tracking'], trackedImages:
+        [{
+          image: imgBitmap, widthInMeters: 0.2
+        }]
+      })
+
+
+
+
+
+
             .then((session) => {
               xrButton.setSession(session);
               session.isImmersive = true;
@@ -236,7 +268,27 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
       // Called every time a XRSession requests that a new frame be drawn.
       function onXRFrame(t, frame) {
+
+
+
+
+
+
+
+
+        const results = frame.getImageTrackingResults(); //checking if there are any images we track
         let session = frame.session;
+
+
+
+
+
+
+
+
+
+
+        
         let xrRefSpace = session.isImmersive ?
                          xrImmersiveRefSpace :
                          inlineViewerHelper.referenceSpace;
